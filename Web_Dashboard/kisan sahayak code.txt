@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🌿 Kisaan Sahayak Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-accent-green: #008744;
+            --color-soft-green: #eaf5ee;
+            --color-primary: #1565c0;
+            --color-background: #f5f7fa;
+            --color-card-bg: #ffffff;
+            --color-text-dark: #212121;
+            --color-text-light: #fff;
+            --color-danger: #c62828;
+            --color-warning: #ffa000;
+            --color-success: #388e3c;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text-dark);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        .header {
+            background-color: var(--color-accent-green);
+            color: var(--color-text-light);
+            width: 100%; padding: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 { margin: 0; font-size: 2.2em; font-weight: 700; }
+        .header p { margin: 5px 0 0; font-size: 1em; opacity: 0.9; }
+
+        .container {
+            width: 95%; max-width: 1250px; margin: 30px auto;
+            padding: 0 15px; flex-grow: 1;
+        }
+        
+        /* CONTROLS ROW (Updated for Button) */
+        .controls-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 15px;
+            border-bottom: 3px solid var(--color-primary);
+            flex-wrap: wrap; gap: 15px;
+        }
+
+        .section-title {
+            color: var(--color-accent-green); font-size: 1.8em;
+            font-weight: 600; margin: 0;
+        }
+
+        .actions-group {
+            display: flex; align-items: center; gap: 15px;
+        }
+
+        /* NEW BUTTON STYLE */
+        .sheet-btn {
+            background-color: var(--color-primary);
+            color: white; border: none; padding: 10px 20px;
+            border-radius: 8px; font-size: 0.9em; font-weight: 600;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; /* For fallback link */
+        }
+        .sheet-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(21, 101, 192, 0.3); }
+
+        .language-toggle {
+            display: flex; background-color: var(--color-card-bg);
+            border-radius: 8px; overflow: hidden;
+            border: 1px solid #e0e0e0; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .language-toggle button {
+            background: none; border: none; color: var(--color-text-dark);
+            padding: 8px 15px; cursor: pointer; font-size: 0.9em; font-weight: 600;
+        }
+        
+        .language-toggle button:not(:last-child) { border-right: 1px solid #e0e0e0; }
+        .language-toggle button.active { background-color: var(--color-primary); color: var(--color-text-light); }
+        
+        /* DATA GRID */
+        .data-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px; margin-bottom: 40px;
+        }
+
+        .data-card {
+            padding: 25px; background-color: var(--color-soft-green);
+            border-radius: 15px; text-align: center;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--color-accent-green);
+            display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 150px; transition: transform 0.3s ease;
+        }
+
+        .data-card:hover { transform: translateY(-5px); }
+
+        .data-card strong {
+            display: block; font-size: 1.2em; color: var(--color-primary);
+            margin-bottom: 10px; font-weight: 600;
+        }
+
+        .data-card .value {
+            font-size: 3em; font-weight: 700; color: var(--color-text-dark); line-height: 1;
+        }
+        
+        .data-card .value small { font-size: 0.5em; font-weight: 400; margin-left: 5px; color: var(--color-accent-green); }
+
+        /* ADVICE BOX */
+        .advice-box {
+            margin-top: 20px; padding: 12px; border-radius: 10px;
+            font-size: 0.9em; font-weight: 600; text-align: left;
+            border-left: 5px solid; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .advice-status { font-weight: 700; font-size: 1.1em; margin-bottom: 5px; text-align: center; }
+        .advice-message { font-weight: 400; text-align: center; }
+
+        .advice-low, .advice-toodry { background-color: #fce4e4; border-color: var(--color-danger); color: var(--color-danger); }
+        .advice-normal, .advice-medium { background-color: #e8f5e9; border-color: var(--color-success); color: var(--color-success); }
+        .advice-high, .advice-toowet { background-color: #fff8e1; border-color: var(--color-warning); color: #795548; }
+        
+        .status-footer {
+            margin-top: 30px; padding: 15px; background-color: var(--color-card-bg);
+            border-top: 1px solid #e0e0e0; text-align: center;
+            font-size: 0.95em; color: #616161; width: 100%;
+        }
+
+        /* MODAL STYLES (New) */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background-color: #fff; width: 90%; max-width: 1100px; height: 85vh;
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+
+        .modal-header {
+            padding: 20px; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #f9f9f9;
+        }
+        .modal-title { margin: 0; font-size: 1.4em; color: var(--color-accent-green); }
+        .close-btn { font-size: 24px; cursor: pointer; color: #666; transition: 0.2s; }
+        .close-btn:hover { color: #000; }
+
+        .modal-body { flex: 1; overflow: auto; padding: 0; }
+        
+        /* Table Styles inside Modal */
+        .sheet-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .sheet-table th { 
+            position: sticky; top: 0; background: var(--color-accent-green); color: white; 
+            padding: 12px 15px; text-align: left; font-weight: 600; font-size: 0.9em;
+        }
+        .sheet-table td { padding: 10px 15px; border-bottom: 1px solid #eee; font-size: 0.9em; color: #333; }
+        .sheet-table tr:nth-child(even) { background-color: #f8f9fa; }
+        .sheet-table tr:hover { background-color: #e8f5e9; }
+
+        .modal-footer {
+            padding: 15px 20px; border-top: 1px solid #eee;
+            display: flex; justify-content: flex-end; background: #fff;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8em; }
+            .controls-row { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .actions-group { width: 100%; justify-content: space-between; }
+            .sheet-btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1 id="header-title">🌱 Kisaan Sahayak</h1>
+        <p id="header-subtitle">Live Soil and Weather Sensor Data</p>
+    </header>
+
+    <div class="container">
+        <div class="controls-row">
+            <h2 id="section-title" class="section-title">Field Monitoring</h2>
+            
+            <div class="actions-group">
+                <button id="view-sheet-btn" class="sheet-btn">
+                    📄 View Data Sheet
+                </button>
+
+                <div class="language-toggle">
+                    <button id="lang-hi" data-lang="hi">हिंदी</button>
+                    <button id="lang-en" data-lang="en" class="active">EN</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="device-data" class="data-grid">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 50px; font-size: 1.2em; color: var(--color-primary);">
+                Loading live sensor data...
+            </div>
+        </div>
+    </div>
+
+    <div id="sheet-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📊 Live Data History</h3>
+                <span id="close-modal" class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table class="sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Temp (°C)</th>
+                            <th>Humidity (%)</th>
+                            <th>Moisture (%)</th>
+                            <th>Nitrogen</th>
+                            <th>Phosphorus</th>
+                            <th>Potassium</th>
+                            <th>pH Level</th>
+                            <th>EC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <a href="https://docs.google.com/spreadsheets/d/109YYneaeC4Lcb2oTwtabO8jbEnMI7mzExxwMNHlB9xg/edit?gid=0#gid=0" target="_blank" class="sheet-btn" style="background-color: #333;">
+                    Open in Google Drive ↗
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="status-message" class="status-footer"></div>
+
+    <script>
+        (function() {
+            // --- CONFIGURATION ---
+            const SHEET_ID = '109YYneaeC4Lcb2oTwtabO8jbEnMI7mzExxwMNHlB9xg';
+            const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleGoogleData`;
+
+            let currentLang = 'en';
+            let fetchedSensorData = []; 
+            let allHistoryData = []; // Store all rows for the table
+            
+            const DOM = {
+                dataContainer: document.getElementById('device-data'),
+                statusMessage: document.getElementById('status-message'),
+                title: document.getElementById('header-title'),
+                subtitle: document.getElementById('header-subtitle'),
+                sectionTitle: document.getElementById('section-title'),
+                langHi: document.getElementById('lang-hi'),
+                langEn: document.getElementById('lang-en'),
+                // Modal Elements
+                viewBtn: document.getElementById('view-sheet-btn'),
+                modal: document.getElementById('sheet-modal'),
+                closeBtn: document.getElementById('close-modal'),
+                tableBody: document.getElementById('table-body')
+            };
+
+            // ✅ COLUMN MAPPING (Col 0 is Date)
+            const SENSORS_TEMPLATE = [
+                { id: 'temp', name: { en: 'Air Temperature', hi: 'हवा का तापमान' }, unit: '°C', colIndex: 1 }, 
+                { id: 'hum', name: { en: 'Air Humidity', hi: 'हवा की आर्द्रता' }, unit: '%', colIndex: 2 },
+                { id: 'soil', name: { en: 'Soil Moisture', hi: 'मृदा नमी' }, unit: '%', colIndex: 3 },
+                { id: 'n', name: { en: 'Nitrogen (N)', hi: 'नाइट्रोजन (N)' }, unit: 'mg', colIndex: 4 },
+                { id: 'p', name: { en: 'Phosphorous (P)', hi: 'फॉस्फोरस (P)' }, unit: 'mg', colIndex: 5 },
+                { id: 'k', name: { en: 'Potassium (K)', hi: 'पोटैशियम (K)' }, unit: 'mg', colIndex: 6 },
+                { id: 'ph', name: { en: 'Soil pH Level', hi: 'मृदा pH स्तर' }, unit: '', colIndex: 7 }, 
+                { id: 'ec', name: { en: 'Soil EC', hi: 'मृदा EC (चालकता)' }, unit: 'μA', colIndex: 8 },
+            ];
+            
+            const TRANSLATIONS = {
+                en: {
+                    title: '🌱 Kisaan Sahayak', subtitle: 'Live Soil and Weather Sensor Data', section: 'Field Monitoring',
+                    loading: 'Fetching data...', success: 'Data synced with satellite.',
+                    error: 'Connection weak.', lastUpdated: 'Last Updated:',
+                    viewSheet: '📄 View Data Sheet'
+                },
+                hi: {
+                    title: '🌱 किसान सहायक', subtitle: 'लाइव मृदा और मौसम सेंसर डेटा', section: 'खेत की निगरानी',
+                    loading: 'डेटा लोड हो रहा है...', success: 'डेटा अपडेट हो गया।',
+                    error: 'कनेक्शन समस्या।', lastUpdated: 'अंतिम अपडेट:',
+                    viewSheet: '📄 डेटा शीट देखें'
+                }
+            };
+
+            // --- JSONP TRIGGER ---
+            window.fetchSheetData = function() {
+                const script = document.createElement('script');
+                script.src = SHEET_URL + '&t=' + Date.now(); 
+                script.onerror = () => updateStatusMessage(null, true);
+                document.body.appendChild(script);
+                script.onload = () => script.remove();
+            };
+
+            // --- JSONP CALLBACK ---
+            window.handleGoogleData = function(json) {
+                try {
+                    const rows = json.table.rows;
+                    // Clean Data (Extract values)
+                    const cleanRows = rows.map(r => r.c.map(cell => cell ? (cell.f ? cell.f : (cell.v !== null ? cell.v : 0)) : 0));
+                    
+                    // Filter empty rows (Check if Date exists)
+                    const validRows = cleanRows.filter(r => r.length > 1 && r[0]);
+                    
+                    if (validRows.length > 0) {
+                        allHistoryData = validRows; // Save for modal
+                        
+                        const latest = validRows[validRows.length - 1];
+                        
+                        // Map to Sensor Objects
+                        fetchedSensorData = SENSORS_TEMPLATE.map(template => ({
+                            ...template,
+                            value: latest[template.colIndex] !== undefined ? latest[template.colIndex] : 'N/A',
+                            error: false
+                        }));
+
+                        renderData(fetchedSensorData);
+                        updateStatusMessage(fetchedSensorData, false);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    updateStatusMessage(null, true);
+                }
+            };
+
+            // --- RENDER DASHBOARD ---
+            function renderData(data) {
+                let htmlContent = '';
+                
+                data.forEach(sensor => {
+                    const displayValue = sensor.value === 'N/A' ? '---' : sensor.value;
+                    const sensorName = sensor.name[currentLang];
+                    let extraContent = '';
+                    let advice = null;
+
+                    // Advice Logic
+                    if (sensor.id === 'k') advice = getPotassiumAdvice(sensor.value, currentLang);
+                    else if (sensor.id === 'p') advice = getPhosphorusAdvice(sensor.value, currentLang);
+                    else if (sensor.id === 'n') advice = getNitrogenAdvice(sensor.value, currentLang);
+                    else if (sensor.id === 'soil') advice = getMoistureAdvice(sensor.value, currentLang);
+                    
+                    if (advice) {
+                        const statusClass = advice.status.toLowerCase().replace(/[^a-z]/g, ''); 
+                        extraContent = `
+                            <div class="advice-box advice-${statusClass}">
+                                <div class="advice-status">${advice.status}</div>
+                                <div class="advice-message">${advice.message}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    let formattedValue = displayValue;
+                    // Only format if it's a number and not a date string or text
+                    if (!isNaN(parseFloat(displayValue)) && isFinite(displayValue)) {
+                        formattedValue = parseFloat(displayValue).toFixed(1);
+                    }
+
+                    htmlContent += `
+                        <div class="data-card">
+                            <div>
+                                <strong>${sensorName}</strong>
+                                <span class="value">${formattedValue} <small>${sensor.unit}</small></span>
+                            </div>
+                            ${extraContent}
+                        </div>
+                    `;
+                });
+
+                DOM.dataContainer.innerHTML = htmlContent;
+            }
+
+            // --- RENDER MODAL TABLE ---
+            function renderTable() {
+                let html = '';
+                // Reverse loop to show latest data on top
+                for (let i = allHistoryData.length - 1; i >= 0; i--) {
+                    const r = allHistoryData[i];
+                    // Skip if row is incomplete
+                    if(r.length < 9) continue; 
+
+                    html += `<tr>
+                        <td>${r[0]}</td> <td>${r[1]}</td> <td>${r[2]}</td> <td>${r[3]}</td> <td>${r[4]}</td> <td>${r[5]}</td> <td>${r[6]}</td> <td>${r[7]}</td> <td>${r[8]}</td> </tr>`;
+                }
+                DOM.tableBody.innerHTML = html;
+            }
+
+            // --- ADVICE LOGIC ---
+            const getPotassiumAdvice = (value, lang) => {
+                const num = parseFloat(value);
+                const advice = {
+                    en: { low: { status: "Low", message: "Low Potassium! Add MOP." }, normal: { status: "Normal", message: "Optimal Level." }, high: { status: "High", message: "High K! Reduce fertilizer." } },
+                    hi: { low: { status: "कम", message: "पोटैशियम कम है! MOP डालें।" }, normal: { status: "सामान्य", message: "स्तर सामान्य है।" }, high: { status: "उच्च", message: "खाद कम करें।" } }
+                };
+                if (isNaN(num)) return null;
+                if (num <= 150) return advice[lang].low;
+                if (num <= 300) return advice[lang].normal;
+                return advice[lang].high;
+            };
+            
+            const getPhosphorusAdvice = (value, lang) => {
+                const num = parseFloat(value);
+                const advice = {
+                    en: { low: { status: "Low", message: "Low P! Add DAP." }, normal: { status: "Normal", message: "Optimal Level." }, high: { status: "High", message: "Reduce DAP." } },
+                    hi: { low: { status: "कम", message: "फॉस्फोरस कम है! DAP डालें।" }, normal: { status: "सामान्य", message: "स्तर सामान्य है।" }, high: { status: "उच्च", message: "DAP कम करें।" } }
+                };
+                if (isNaN(num)) return null;
+                if (num <= 20) return advice[lang].low;
+                if (num <= 60) return advice[lang].normal;
+                return advice[lang].high;
+            };
+
+            const getNitrogenAdvice = (value, lang) => {
+                const num = parseFloat(value);
+                const advice = {
+                    en: { low: { status: "Low", message: "Low N! Add Urea." }, normal: { status: "Medium", message: "Optimal Level." }, high: { status: "High", message: "High N! Stop Urea." } },
+                    hi: { low: { status: "कम", message: "नाइट्रोजन कम है! यूरिया डालें।" }, normal: { status: "मध्यम", message: "स्तर सामान्य है।" }, high: { status: "उच्च", message: "यूरिया बंद करें।" } }
+                };
+                if (isNaN(num)) return null;
+                if (num <= 50) return advice[lang].low;
+                if (num <= 200) return advice[lang].normal;
+                return advice[lang].high;
+            };
+
+            const getMoistureAdvice = (value, lang) => {
+                const num = parseFloat(value);
+                const advice = {
+                    en: { dry: { status: "Too Dry", message: "Irrigate Immediately." }, normal: { status: "Normal", message: "Moisture is good." }, wet: { status: "Too Wet", message: "Stop Irrigation." } },
+                    hi: { dry: { status: "बहुत सूखा", message: "तुरंत पानी दें।" }, normal: { status: "सामान्य", message: "नमी सही है।" }, wet: { status: "बहुत गीला", message: "पानी बंद करें।" } }
+                };
+                if (isNaN(num)) return null;
+                if (num <= 30) return advice[lang].dry;
+                if (num <= 60) return advice[lang].normal;
+                return advice[lang].wet;
+            };
+
+            function updateStatusMessage(data, hasError) {
+                const lang = TRANSLATIONS[currentLang];
+                const time = new Date().toLocaleTimeString(currentLang === 'hi' ? 'hi-IN' : 'en-US');
+                if (hasError) {
+                    DOM.statusMessage.innerHTML = `<span style="color:red"⚠️ ${lang.error}</span> | ${lang.lastUpdated} ${time}`;
+                } else {
+                    DOM.statusMessage.innerHTML = `<span style="color:green">✅ ${lang.success}</span> | ${lang.lastUpdated} ${time}`;
+                }
+            }
+
+            function switchLanguage(lang) {
+                if (currentLang === lang) return;
+                currentLang = lang;
+                DOM.title.textContent = TRANSLATIONS[lang].title;
+                DOM.subtitle.textContent = TRANSLATIONS[lang].subtitle;
+                DOM.sectionTitle.textContent = TRANSLATIONS[lang].section;
+                DOM.viewBtn.textContent = TRANSLATIONS[lang].viewSheet;
+                DOM.langHi.classList.toggle('active', lang === 'hi');
+                DOM.langEn.classList.toggle('active', lang === 'en');
+                
+                if (fetchedSensorData.length > 0) renderData(fetchedSensorData);
+            }
+
+            // --- EVENT LISTENERS ---
+            DOM.langHi.addEventListener('click', () => switchLanguage('hi'));
+            DOM.langEn.addEventListener('click', () => switchLanguage('en'));
+            
+            // Modal Events
+            DOM.viewBtn.addEventListener('click', () => {
+                renderTable(); // Update table before showing
+                DOM.modal.classList.add('active');
+            });
+            DOM.closeBtn.addEventListener('click', () => DOM.modal.classList.remove('active'));
+            window.addEventListener('click', (e) => {
+                if (e.target === DOM.modal) DOM.modal.classList.remove('active');
+            });
+
+            // Start
+            fetchSheetData();
+            setInterval(fetchSheetData, 10000); 
+
+        })();
+    </script>
+
+</body>
+</html>
